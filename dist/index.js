@@ -8332,6 +8332,7 @@ async function run() {
         const token = core.getInput("gh_token", { required: true });
         const productName = core.getInput("product_name", { required: true });
         const ref = core.getInput("ref", { required: true });
+        console.log(ref);
         const octokit = github.getOctokit(token);
         const deployment = await octokit.rest.repos.listDeployments({
             ...context.repo,

@@ -9,6 +9,8 @@ async function run() {
         const productName = core.getInput("product_name", { required: true });
         const ref = core.getInput("ref", { required: true });
 
+        console.log(ref);
+
         const octokit = github.getOctokit(token);
 
         const deployment = await octokit.rest.repos.listDeployments({
