@@ -11,6 +11,9 @@ inputs:
   gh_token:
       description: "GH token that can create ephemerals"
       required: true
+  ref:
+    description: "ref of the branch to delete"
+    required: true
 runs:
   using: "node16"
   main: "dist/index.js"

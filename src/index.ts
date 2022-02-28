@@ -7,12 +7,13 @@ async function run() {
 
         const token = core.getInput("gh_token", { required: true });
         const productName = core.getInput("product_name", { required: true });
+        const ref = core.getInput("ref", { required: true });
 
         const octokit = github.getOctokit(token);
 
         const deployment = await octokit.rest.repos.listDeployments({
             ...context.repo,
-            ref: context.ref,
+            ref,
             environment: "review",
         });
 
@@ -21,7 +22,7 @@ async function run() {
         }
 
         const deploymentId = deployment.data[0].id.toString();
-        const branch = context.ref.split("/")[2];
+        const branch = ref.split("/")[2];
 
         const workflowDispatch = await octokit.rest.actions.createWorkflowDispatch({
             owner: "Updater",
