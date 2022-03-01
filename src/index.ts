@@ -6,14 +6,14 @@ async function run() {
         const context = github.context;
 
         const token = core.getInput("gh_token", { required: true });
-        const productName = core.getInput("product_name", { required: true });
-        const ref = "refs/heads/" + core.getInput("ref", { required: true });
+        const productName = dnsSafe(core.getInput("product_name", { required: true }));
+        const ref = core.getInput("ref", { required: true });
 
         const octokit = github.getOctokit(token);
 
         const deployment = await octokit.rest.repos.listDeployments({
             ...context.repo,
-            ref,
+            ref: "refs/heads/" + ref,
             environment: "review",
         });
 
@@ -22,7 +22,6 @@ async function run() {
         }
 
         const deploymentId = deployment.data[0].id.toString();
-        const branch = ref.split("/")[2];
 
         const workflowDispatch = await octokit.rest.actions.createWorkflowDispatch({
             owner: "Updater",
@@ -30,7 +29,7 @@ async function run() {
             workflow_id: "ephemeral_delete.yaml",
             ref: "main",
             inputs: {
-                branch: branch,
+                branch: dnsSafe(ref),
                 product_name: productName,
                 repository_name: context.repo.repo,
                 deployment_id: deploymentId
@@ -47,6 +46,10 @@ async function run() {
         //@ts-ignore
         core.setFailed(error.message);
     }
+}
+
+function dnsSafe(s: string): string{
+    return s.replace(/_/g, "-").replace(/\./g, "-").replace(/\//g, "-");
 }
 
 run();
