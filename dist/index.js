@@ -8343,6 +8343,7 @@ async function run() {
             throw new Error("No deployment found");
         }
         const deploymentId = deployment.data[0].id.toString();
+        // KUBERNETES_SAFE_LENGTH - 1 accounts for the `-` we add later in the process
         let branch = dnsSafe(ref, (KUBERNETES_SAFE_LENGTH - 1) - productName.length);
         const workflowDispatch = await octokit.rest.actions.createWorkflowDispatch({
             owner: "Updater",
@@ -8369,7 +8370,10 @@ async function run() {
 }
 function dnsSafe(s, maxLength = KUBERNETES_SAFE_LENGTH) {
     let regexPattern = new RegExp(`(.{0,${maxLength}}).*`);
-    return s.replace(/[_\.\/']/g, '-').replace(regexPattern, '$1').replace(/-$/, '');
+    return s.replace(/[_\.\/']/g, '-')
+        .replace(regexPattern, '$1')
+        .replace(/-$/, '')
+        .toLowerCase();
 }
 run();
 
