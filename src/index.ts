@@ -25,6 +25,7 @@ async function run() {
 
         const deploymentId = deployment.data[0].id.toString();
 
+        // KUBERNETES_SAFE_LENGTH - 1 accounts for the `-` we add later in the process
         let branch = dnsSafe(ref, (KUBERNETES_SAFE_LENGTH - 1) - productName.length);
 
         const workflowDispatch = await octokit.rest.actions.createWorkflowDispatch({
