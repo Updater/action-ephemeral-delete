@@ -8366,6 +8366,7 @@ async function run() {
         core.setFailed(error.message);
     }
 }
+// This also acts as a "kubernetes safe" function, which is why maxLength defaults to 52
 function dnsSafe(s, maxLength = 52) {
     let regexPattern = new RegExp(`(.{0,${maxLength}}).*`);
     return s.replace(/[_\.\/']/g, '-').replace(regexPattern, '$1').replace(/-$/, '');
