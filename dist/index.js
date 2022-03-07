@@ -8326,6 +8326,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const KUBERNETES_SAFE_LENGTH = 52;
 async function run() {
     try {
         const context = github.context;
@@ -8342,7 +8343,7 @@ async function run() {
             throw new Error("No deployment found");
         }
         const deploymentId = deployment.data[0].id.toString();
-        let branch = dnsSafe(ref, 52 - productName.length);
+        let branch = dnsSafe(ref, (KUBERNETES_SAFE_LENGTH - 1) - productName.length);
         const workflowDispatch = await octokit.rest.actions.createWorkflowDispatch({
             owner: "Updater",
             repo: "kubernetes-clusters",
@@ -8366,8 +8367,7 @@ async function run() {
         core.setFailed(error.message);
     }
 }
-// This also acts as a "kubernetes safe" function, which is why maxLength defaults to 52
-function dnsSafe(s, maxLength = 52) {
+function dnsSafe(s, maxLength = KUBERNETES_SAFE_LENGTH) {
     let regexPattern = new RegExp(`(.{0,${maxLength}}).*`);
     return s.replace(/[_\.\/']/g, '-').replace(regexPattern, '$1').replace(/-$/, '');
 }

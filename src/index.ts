@@ -1,6 +1,8 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 
+const KUBERNETES_SAFE_LENGTH = 52
+
 async function run() {
     try {
         const context = github.context;
@@ -23,7 +25,7 @@ async function run() {
 
         const deploymentId = deployment.data[0].id.toString();
 
-        let branch = dnsSafe(ref, 52 - productName.length);
+        let branch = dnsSafe(ref, (KUBERNETES_SAFE_LENGTH - 1) - productName.length);
 
         const workflowDispatch = await octokit.rest.actions.createWorkflowDispatch({
             owner: "Updater",
@@ -50,8 +52,7 @@ async function run() {
     }
 }
 
-// This also acts as a "kubernetes safe" function, which is why maxLength defaults to 52
-function dnsSafe(s: string, maxLength: number = 52): string{
+function dnsSafe(s: string, maxLength: number = KUBERNETES_SAFE_LENGTH): string{
     let regexPattern = new RegExp(`(.{0,${maxLength}}).*`);
     return s.replace(/[_\.\/']/g, '-').replace(regexPattern, '$1').replace(/-$/, '');
 }
