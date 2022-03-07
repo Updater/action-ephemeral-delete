@@ -8342,13 +8342,14 @@ async function run() {
             throw new Error("No deployment found");
         }
         const deploymentId = deployment.data[0].id.toString();
+        let branch = dnsSafe(ref, 52 - productName.length);
         const workflowDispatch = await octokit.rest.actions.createWorkflowDispatch({
             owner: "Updater",
             repo: "kubernetes-clusters",
             workflow_id: "ephemeral_delete.yaml",
             ref: "main",
             inputs: {
-                branch: dnsSafe(ref),
+                branch,
                 product_name: productName,
                 repository_name: context.repo.repo,
                 deployment_id: deploymentId
@@ -8365,12 +8366,9 @@ async function run() {
         core.setFailed(error.message);
     }
 }
-function dnsSafe(s) {
-    return s.replace(/_/g, "-")
-        .replace(/\./g, "-")
-        .replace(/\//g, "-")
-        .replace(/'/g, "-")
-        .toLowerCase();
+function dnsSafe(s, maxLength = 52) {
+    let regexPattern = new RegExp(`(.{0,${maxLength}}).*`);
+    return s.replace(/[_\.\/']/g, '-').replace(regexPattern, '$1').replace(/-$/, '');
 }
 run();
 

@@ -23,13 +23,15 @@ async function run() {
 
         const deploymentId = deployment.data[0].id.toString();
 
+        let branch = dnsSafe(ref, 52 - productName.length);
+
         const workflowDispatch = await octokit.rest.actions.createWorkflowDispatch({
             owner: "Updater",
             repo: "kubernetes-clusters",
             workflow_id: "ephemeral_delete.yaml",
             ref: "main",
             inputs: {
-                branch: dnsSafe(ref),
+                branch,
                 product_name: productName,
                 repository_name: context.repo.repo,
                 deployment_id: deploymentId
@@ -48,12 +50,9 @@ async function run() {
     }
 }
 
-function dnsSafe(s: string): string{
-    return s.replace(/_/g, "-")
-        .replace(/\./g, "-")
-        .replace(/\//g, "-")
-        .replace(/'/g, "-")
-        .toLowerCase();
+function dnsSafe(s: string, maxLength: number = 52): string{
+    let regexPattern = new RegExp(`(.{0,${maxLength}}).*`);
+    return s.replace(/[_\.\/']/g, '-').replace(regexPattern, '$1').replace(/-$/, '');
 }
 
 run();
