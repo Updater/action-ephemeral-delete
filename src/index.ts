@@ -1,6 +1,5 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
-import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
 
 async function run() {
     try {
@@ -30,7 +29,7 @@ async function run() {
             workflow_id: "ephemeral_delete.yaml",
             ref: "main",
             inputs: {
-                release_name: generateReleaseNameFromBranchName(ref),
+                branch: ref,
                 product_name: productName,
                 repository_name: context.repo.repo,
                 deployment_id: deploymentId
@@ -49,14 +48,5 @@ async function run() {
     }
 }
 
-function generateReleaseNameFromBranchName(branch) {
-    return uniqueNamesGenerator({
-        dictionaries: [adjectives, adjectives, animals],
-        length: 3,
-        separator: '-',
-        style: 'lowerCase',
-        seed: branch,
-    });
-}
 
 run();
