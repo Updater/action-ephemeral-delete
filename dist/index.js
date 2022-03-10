@@ -8326,6 +8326,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const MAX_KUBERNETES_LENGTH = 53;
 async function run() {
     try {
         const context = github.context;
@@ -8333,6 +8334,9 @@ async function run() {
         const productName = core.getInput("product_name", { required: true });
         const ref = core.getInput("ref", { required: true });
         const octokit = github.getOctokit(token);
+        if (ref.length > MAX_KUBERNETES_LENGTH) {
+            throw new Error("Branch name is too long, max length is 53 characters");
+        }
         const deployment = await octokit.rest.repos.listDeployments({
             ...context.repo,
             ref: "refs/heads/" + ref,
