@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 
-const MAX_KUBERNETES_LENGTH = 53;
+const MAX_KUBERNETES_LENGTH = 53 - "-canary".length;
 
 async function run() {
     try {
@@ -14,7 +14,7 @@ async function run() {
         const octokit = github.getOctokit(token);
 
         if(ref.length > MAX_KUBERNETES_LENGTH) {
-            throw new Error("Branch name is too long, max length is 53 characters");
+            throw new Error(`Branch name is too long, max length is ${MAX_KUBERNETES_LENGTH} characters`);
         }
 
         const deployment = await octokit.rest.repos.listDeployments({
