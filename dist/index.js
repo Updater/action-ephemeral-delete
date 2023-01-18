@@ -8340,7 +8340,7 @@ async function run() {
         const deployment = await octokit.rest.repos.listDeployments({
             ...context.repo,
             ref: "refs/heads/" + ref,
-            environment: "review",
+            environment: productName || "unknown",
         });
         if (deployment.data.length === 0) {
             throw new Error("No deployment found");
