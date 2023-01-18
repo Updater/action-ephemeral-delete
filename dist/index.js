@@ -8337,13 +8337,21 @@ async function run() {
         if (ref.length > MAX_KUBERNETES_LENGTH) {
             throw new Error("Branch name is too long, max length is 53 characters");
         }
-        const deployment = await octokit.rest.repos.listDeployments({
+        let deployment = await octokit.rest.repos.listDeployments({
             ...context.repo,
             ref: "refs/heads/" + ref,
             environment: "review",
         });
+        // Need to supoort both "review" environment and those designated by product name for the time being.
         if (deployment.data.length === 0) {
-            throw new Error("No deployment found");
+            deployment = await octokit.rest.repos.listDeployments({
+                ...context.repo,
+                ref: "refs/heads/" + ref,
+                environment: productName,
+            });
+            if (deployment.data.length === 0) {
+                throw new Error("No deployment found");
+            }
         }
         const deploymentId = deployment.data[0].id.toString();
         const workflowDispatch = await octokit.rest.actions.createWorkflowDispatch({
